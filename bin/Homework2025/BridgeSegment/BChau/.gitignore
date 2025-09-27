@@ -1,0 +1,11 @@
+/.metadata/
+.DS_Store
+README.md
+
+/*
+!.gitignore
+!/DEVSJAVA
+/DEVSJAVA/*
+!DEVSJAVA/src
+/DEVSJAVA/src/*
+!DEVSJAVA/src/Homework2025
