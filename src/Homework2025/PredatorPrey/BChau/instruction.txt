@@ -1,0 +1,37 @@
+. The World (Cell Space)
+A 2D grid of cells, typically 30x30 or 40x40.
+Wrapped Boundaries: The grid is a torus. Moving off the top edge brings you to the bottom, moving off the left brings you to the right, etc.
+Provided Code: SheepGrassCellSpace.java provides two crucial methods:
+DoBoundaryToBoundaryCoupling(): Sets up the wrapped couplings between edge cells.
+getNeighborXYCoord(): Calculates the coordinates of a neighbor in any of the 8 directions, respecting the wrapped boundaries.
+2. The Agents & Their Behaviors
+
+A. Grass
+
+State: A cell can be EMPTY or contain GRASS.
+Reproduction:
+Every grassReproduceT time units, a grass cell tries to reproduce.
+It picks one random empty neighbor cell.
+If an empty neighbor exists, it creates a new grass there. If not, nothing happens.
+B. Sheep
+
+State: A cell can contain a SHEEP. A cell cannot have both grass and a sheep simultaneously.
+Movement (sheepMoveT):
+A sheep is always trying to move.
+It takes sheepMoveT time units to complete a move.
+Movement Logic:
+Prefers to move to a random neighbor cell that has grass.
+If no grass neighbors, moves to a random empty neighbor cell.
+If all neighbors are occupied by other sheep, the move fails.
+Critical Detail: The destination cell is only claimed at the end of the move duration. This prevents "pre-booking" a cell that might be taken by another sheep.
+Eating: When a sheep successfully moves into a grass cell, the grass is immediately consumed (the cell becomes EMPTY or contains only the sheep).
+Energy/Life (sheepLifeT):
+A sheep has an "energy" or "life" timer counting down from sheepLifeT.
+Each time it eats grass, this timer is reset.
+If the timer reaches zero, the sheep dies (the cell becomes EMPTY).
+Reproduction (sheepReproduceT):
+Every sheepReproduceT time units, a sheep tries to reproduce.
+It picks one random empty neighbor cell.
+If an empty neighbor exists, a new sheep is created there at the end of the reproduction time.
+If all neighbors are occupied, nothing happens.
+Confluent Events: If a sheep is supposed to die and reproduce at the same time, the death takes precedence (it dies and does not reproduce).
