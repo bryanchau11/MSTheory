@@ -19,10 +19,10 @@ public class SheepGrassCell extends TwoDimCell {
     }
 
     // Current state of this cell
-    private String currentState;
+    private String currentState = CellState.EMPTY;
 
     // Time tracking for grass growth
-    private double grassReproduceT;
+    private double grassReproduceT = GlobalRef.grassReproduceT;
 
     // Global reference to access parameters
     private GlobalRef globalRef;
@@ -70,8 +70,6 @@ public class SheepGrassCell extends TwoDimCell {
     public void initialize() {
         cellGridView = ((SheepGrassCellSpace) getParent()).plot.getCellGridView();
         // Start with empty state by default
-        currentState = CellState.EMPTY;
-        grassReproduceT = 2.0;
 
         // Update global state tracking
         if (globalRef != null && globalRef.state != null) {
@@ -92,6 +90,7 @@ public class SheepGrassCell extends TwoDimCell {
         messageList = new message();
 
         // Schedule next event based on current state
+
         scheduleNextEvent();
     }
 
@@ -113,20 +112,17 @@ public class SheepGrassCell extends TwoDimCell {
         // Clear previous messages
         messageList = new message();
 
-        if (currentState.equals(CellState.GRASS)) {
-            // Time to grow/reproduce
-
-            grassReproduceT += sigma; // Update growth time
-
-            // Try to reproduce if enough time has passed
-            grassReproduceT -= globalRef.grassReproduceT;
+        if (phaseIs("GROW") && currentState.equals(CellState.GRASS)) {
+            // Time to try reproducing grass
+            // grassReproduceT += sigma; // Update growth time
+            grassReproduceT -= sigma;
             if (grassReproduceT <= 0) {
                 grassReproduceT = globalRef.grassReproduceT; // Reset cycle
                 System.out.println("Grass at (" + getXcoord() + "," + getYcoord() + ") trying to reproduce");
                 tryToReproduceGrass();
             }
-        }
 
+        }
         // Schedule next event
         scheduleNextEvent();
     }
@@ -182,11 +178,11 @@ public class SheepGrassCell extends TwoDimCell {
     // return emptyNeighbors;
     // }
 
-    private int[] getNeighborCoordinates(int direction) {
-        // Use the cell space's method to get wrapped coordinates
-        SheepGrassCellSpace cellSpace = (SheepGrassCellSpace) getParent();
-        return cellSpace.getNeighborXYCoord(this, direction);
-    }
+    // private int[] getNeighborCoordinates(int direction) {
+    // // Use the cell space's method to get wrapped coordinates
+    // SheepGrassCellSpace cellSpace = (SheepGrassCellSpace) getParent();
+    // return cellSpace.getNeighborXYCoord(this, direction);
+    // }
 
     private String getOutportForDirection(int direction) {
         switch (direction) {
@@ -261,6 +257,8 @@ public class SheepGrassCell extends TwoDimCell {
                 }
             }
         }
+        // check state of (10,10)
+        System.out.println("Check state of (10,10): " + globalRef.state[10][10]);
         System.out.println("Set initial state of (" + getXcoord() + "," + getYcoord() + ") to " + state);
     }
 

@@ -18,7 +18,7 @@ public class SheepGrassCellSpace extends TwoDimCellSpace {
     newCellGridPlot plot;
 
     public SheepGrassCellSpace() {
-        this(20, 20);
+        this(40, 40);
     }
 
     public SheepGrassCellSpace(int xDim, int yDim) {
@@ -28,8 +28,8 @@ public class SheepGrassCellSpace extends TwoDimCellSpace {
         GlobalRef globalRef = GlobalRef.getInstance();
         globalRef.setDim(xDim, yDim);
 
-        plot = new newCellGridPlot("SheepGrassCellSpace", 0.1, "", 600, "", 600);
-        plot.setCellSize(5);
+        plot = new newCellGridPlot("SheepGrassCellSpace", 0.1, "", 400, "", 400);
+        plot.setCellSize(10);
         plot.setCellGridViewLocation(570, 100);
 
         this.numCells = xDim * yDim;
@@ -42,14 +42,14 @@ public class SheepGrassCellSpace extends TwoDimCellSpace {
                 addCell(cell, xDimCellspace, yDimCellspace);
             }
         }
-        for (int i = 0; i < xDimCellspace; i++) {
-            for (int j = 0; j < yDimCellspace; j++) {
-                SheepGrassCell cell = (SheepGrassCell) withId(i, j);
-                cell.initialize(); // Initialize after parent is set
-            }
-        }
-        DoNeighborCouplings();
+        // for (int i = 0; i < xDimCellspace; i++) {
+        // for (int j = 0; j < yDimCellspace; j++) {
+        // SheepGrassCell cell = (SheepGrassCell) withId(i, j);
+        // cell.initialize(); // Initialize after parent is set
+        // }
+        // }
         setupScenario1();
+        DoNeighborCouplings();
 
         DoBoundaryToBoundaryCoupling();
     }
@@ -72,7 +72,7 @@ public class SheepGrassCellSpace extends TwoDimCellSpace {
         SheepGrassCellSpace model = new SheepGrassCellSpace();
 
         TunableCoordinator r = new TunableCoordinator(model);
-        r.setTimeScale(0.3);
+        r.setTimeScale(0.2);
 
         r.initialize();
 
