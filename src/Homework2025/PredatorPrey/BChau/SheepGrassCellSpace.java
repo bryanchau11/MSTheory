@@ -147,7 +147,7 @@ public class SheepGrassCellSpace extends TwoDimCellSpace {
     }
 
     public static void main(String args[]) {
-        int scenarioNumber = 2;
+        int scenarioNumber = 3;
         SheepGrassCellSpace model = new SheepGrassCellSpace(scenarioNumber);
         TunableCoordinator r = new TunableCoordinator(model);
         r.setTimeScale(0.2);
