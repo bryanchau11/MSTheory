@@ -17,13 +17,16 @@ public class SheepGrassCellSpace extends TwoDimCellSpace {
 
     newCellGridPlot plot;
 
-    public SheepGrassCellSpace() {
-        this(40, 40);
+    public SheepGrassCellSpace(int scenarioNumber) {
+        this(40, 40, scenarioNumber);
     }
 
-    public SheepGrassCellSpace(int xDim, int yDim) {
-        super("SheepGrass Cell Space", xDim, yDim);
+    public SheepGrassCellSpace() {
+        this(40, 40, 1); // Default to scenario 1
+    }
 
+    public SheepGrassCellSpace(int xDim, int yDim, int scenarioNumber) {
+        super("SheepGrass Cell Space", xDim, yDim);
         // Initialize GlobalRef FIRST
         GlobalRef globalRef = GlobalRef.getInstance();
         globalRef.setDim(xDim, yDim);
@@ -48,9 +51,25 @@ public class SheepGrassCellSpace extends TwoDimCellSpace {
         // cell.initialize(); // Initialize after parent is set
         // }
         // }
-        doScenario(2);
+        doScenario(scenarioNumber);
         DoNeighborCouplings();
         DoBoundaryToBoundaryCoupling();
+    }
+
+    private void doScenario(int scenarioNumber) {
+        switch (scenarioNumber) {
+            case 1:
+                setupScenario1();
+                break;
+            case 2:
+                setupScenario2();
+                break;
+            case 3:
+                setupScenario3();
+                break;
+            default:
+                System.out.println("✗ ERROR: Invalid scenario number!");
+        }
     }
 
     private void setupScenario1() {
@@ -69,21 +88,6 @@ public class SheepGrassCellSpace extends TwoDimCellSpace {
         }
 
         System.out.println("✓ Total grass cells created: 1");
-    }
-
-    private void doScenario(int scenarioNumber) {
-        // this to switch between scenarios 1 to 2,3,4...
-        switch (scenarioNumber) {
-            case 1:
-                setupScenario1();
-                break;
-            case 2:
-                setupScenario2();
-                break;
-            // Add more cases for additional scenarios
-            default:
-                System.out.println("✗ ERROR: Invalid scenario number!");
-        }
     }
 
     private void setupScenario2() {
@@ -124,18 +128,31 @@ public class SheepGrassCellSpace extends TwoDimCellSpace {
         System.out.println("✓ Total grass cells created: " + grassLocations.length);
     }
 
-    public static void main(String args[]) {
-        SheepGrassCellSpace model = new SheepGrassCellSpace();
+    private void setupScenario3() {
+        int centerX = xDimCellspace / 2;
+        int centerY = yDimCellspace / 2;
 
+        System.out.println("✓ Scenario 3: Setting up single sheep at center location (no grass)");
+
+        // Get the center cell and set it to sheep
+        SheepGrassCell centerCell = (SheepGrassCell) withId(centerX, centerY);
+        if (centerCell != null) {
+            centerCell.setInitialState(SheepGrassCell.CellState.SHEEP);
+            System.out.println("  → Set cell (" + centerX + "," + centerY + ") to SHEEP");
+        } else {
+            System.out.println("✗ ERROR: Could not find center cell at (" + centerX + "," + centerY + ")!");
+        }
+
+        System.out.println("✓ Total sheep cells created: 1");
+    }
+
+    public static void main(String args[]) {
+        int scenarioNumber = 2;
+        SheepGrassCellSpace model = new SheepGrassCellSpace(scenarioNumber);
         TunableCoordinator r = new TunableCoordinator(model);
         r.setTimeScale(0.2);
 
         r.initialize();
-
-        System.out.println("Starting Scenario 1 simulation...");
-        System.out.println("Expect to see grass spreading from center (" +
-                (model.xDimCellspace / 2) + "," + (model.yDimCellspace / 2) + ")");
-
         r.simulate(10000);
         // System.exit(0);
     }

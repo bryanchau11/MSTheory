@@ -24,6 +24,11 @@ public class SheepGrassCell extends TwoDimCell {
     // Time tracking for grass growth
     private double grassReproduceT = GlobalRef.grassReproduceT;
 
+    // Time tracking for sheep actions
+    private double sheepLifeT = GlobalRef.sheepLifeT;
+    private double sheepReproduceT = GlobalRef.sheepReproduceT;
+    private double sheepMoveT = GlobalRef.sheepMoveT;
+
     // Global reference to access parameters
     private GlobalRef globalRef;
 
@@ -72,9 +77,9 @@ public class SheepGrassCell extends TwoDimCell {
         // Start with empty state by default
 
         // Update global state tracking
-        if (globalRef != null && globalRef.state != null) {
-            globalRef.state[getXcoord()][getYcoord()] = currentState;
-            globalRef.cell_ref[getXcoord()][getYcoord()] = this;
+        if (globalRef != null && GlobalRef.state != null) {
+            GlobalRef.state[getXcoord()][getYcoord()] = currentState;
+            GlobalRef.cell_ref[getXcoord()][getYcoord()] = this;
 
             // Draw based on current state
             System.out.println("Cell (" + getXcoord() + "," + getYcoord() + ") initial state: " + currentState);
@@ -97,9 +102,9 @@ public class SheepGrassCell extends TwoDimCell {
     private void scheduleNextEvent() {
         if (currentState.equals(CellState.GRASS)) {
             // Grass needs to check for reproduction
-            grassReproduceT -= globalRef.grassReproduceT;
+            grassReproduceT -= GlobalRef.grassReproduceT;
             if (grassReproduceT <= 0) {
-                grassReproduceT = globalRef.grassReproduceT; // Reset cycle
+                grassReproduceT = GlobalRef.grassReproduceT; // Reset cycle
             }
             holdIn("GROW", grassReproduceT);
         } else {
@@ -117,7 +122,7 @@ public class SheepGrassCell extends TwoDimCell {
             // grassReproduceT += sigma; // Update growth time
             grassReproduceT -= sigma;
             if (grassReproduceT <= 0) {
-                grassReproduceT = globalRef.grassReproduceT; // Reset cycle
+                grassReproduceT = GlobalRef.grassReproduceT; // Reset cycle
                 System.out.println("Grass at (" + getXcoord() + "," + getYcoord() + ") trying to reproduce");
                 tryToReproduceGrass();
             }
@@ -128,26 +133,6 @@ public class SheepGrassCell extends TwoDimCell {
     }
 
     private void tryToReproduceGrass() {
-        // Find empty neighbor cells
-        // ArrayList<Integer> emptyNeighbors = findEmptyNeighbors();
-
-        // if (!emptyNeighbors.isEmpty()) {
-        // // Randomly select one empty neighbor
-        // int randomIndex = rand.nextInt(emptyNeighbors.size());
-        // int direction = emptyNeighbors.get(randomIndex);
-
-        // // Send reproduction message to that neighbor
-        // String outputPort = getOutportForDirection(direction);
-        // content con = makeContent(outputPort, new entity("reproduce_grass"));
-        // messageList.add(con);
-
-        // System.out.println("Grass at (" + getXcoord() + "," + getYcoord() +
-        // ") reproducing to direction " + direction);
-        // } else {
-        // System.out.println("Grass at (" + getXcoord() + "," + getYcoord() +
-        // ") cannot reproduce - no empty neighbors");
-        // }
-        // use getRandomNeighbor from GlobalRef
         Integer randomNeighborDirection = globalRef.getRandomNeighbor(getXcoord(), getYcoord(), CellState.EMPTY);
         System.out.println("Random Neighbor Direction: " + randomNeighborDirection);
         if (randomNeighborDirection != null) {
@@ -159,30 +144,6 @@ public class SheepGrassCell extends TwoDimCell {
                     ") reproducing to direction " + randomNeighborDirection);
         }
     }
-
-    // private ArrayList<Integer> findEmptyNeighbors() {
-    // ArrayList<Integer> emptyNeighbors = new ArrayList<>();
-
-    // // Check all 8 directions (0=N, 1=NE, 2=E, 3=SE, 4=S, 5=SW, 6=W, 7=NW)
-    // for (int direction = 0; direction < 8; direction++) {
-    // int[] neighborCoords = getNeighborCoordinates(direction);
-    // int neighborX = neighborCoords[0];
-    // int neighborY = neighborCoords[1];
-
-    // // Check if neighbor is empty
-    // if (globalRef.state[neighborX][neighborY].equals(CellState.EMPTY)) {
-    // emptyNeighbors.add(direction);
-    // }
-    // }
-
-    // return emptyNeighbors;
-    // }
-
-    // private int[] getNeighborCoordinates(int direction) {
-    // // Use the cell space's method to get wrapped coordinates
-    // SheepGrassCellSpace cellSpace = (SheepGrassCellSpace) getParent();
-    // return cellSpace.getNeighborXYCoord(this, direction);
-    // }
 
     private String getOutportForDirection(int direction) {
         switch (direction) {
@@ -222,8 +183,8 @@ public class SheepGrassCell extends TwoDimCell {
 
                 if (messageContent.equals("reproduce_grass") && currentState.equals(CellState.EMPTY)) {
                     currentState = CellState.GRASS;
-                    grassReproduceT = globalRef.grassReproduceT;
-                    globalRef.state[getXcoord()][getYcoord()] = currentState;
+                    grassReproduceT = GlobalRef.grassReproduceT;
+                    GlobalRef.state[getXcoord()][getYcoord()] = currentState;
 
                     // Update visualization for new grass
                     if (cellGridView != null) {
@@ -245,8 +206,8 @@ public class SheepGrassCell extends TwoDimCell {
 
     public void setInitialState(String state) {
         currentState = state;
-        if (globalRef != null && globalRef.state != null) {
-            globalRef.state[getXcoord()][getYcoord()] = state;
+        if (globalRef != null && GlobalRef.state != null) {
+            GlobalRef.state[getXcoord()][getYcoord()] = state;
 
             // Update visualization when state is set
             if (cellGridView != null) {
@@ -258,7 +219,7 @@ public class SheepGrassCell extends TwoDimCell {
             }
         }
         // check state of (10,10)
-        System.out.println("Check state of (10,10): " + globalRef.state[10][10]);
+        System.out.println("Check state of (10,10): " + GlobalRef.state[10][10]);
         System.out.println("Set initial state of (" + getXcoord() + "," + getYcoord() + ") to " + state);
     }
 
