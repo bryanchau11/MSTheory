@@ -48,24 +48,80 @@ public class SheepGrassCellSpace extends TwoDimCellSpace {
         // cell.initialize(); // Initialize after parent is set
         // }
         // }
-        setupScenario1();
+        doScenario(2);
         DoNeighborCouplings();
-
         DoBoundaryToBoundaryCoupling();
     }
 
     private void setupScenario1() {
-        int centerX = xDimCellspace / 2; // 40 for 80x40 grid
-        int centerY = yDimCellspace / 2; // 20 for 80x40 grid
+        int centerX = xDimCellspace / 2; // 20 for 40x40 grid
+        int centerY = yDimCellspace / 2; // 20 for 40x40 grid
+
+        System.out.println("✓ Scenario 1: Setting up single grass cell at center location");
 
         // Get the center cell and set it to grass
         SheepGrassCell centerCell = (SheepGrassCell) withId(centerX, centerY);
         if (centerCell != null) {
             centerCell.setInitialState(SheepGrassCell.CellState.GRASS);
-            System.out.println("✓ Scenario 1: Set center cell (" + centerX + "," + centerY + ") to GRASS");
+            System.out.println("  → Set cell (" + centerX + "," + centerY + ") to GRASS");
         } else {
-            System.out.println("✗ ERROR: Could not find center cell!");
+            System.out.println("✗ ERROR: Could not find center cell at (" + centerX + "," + centerY + ")!");
         }
+
+        System.out.println("✓ Total grass cells created: 1");
+    }
+
+    private void doScenario(int scenarioNumber) {
+        // this to switch between scenarios 1 to 2,3,4...
+        switch (scenarioNumber) {
+            case 1:
+                setupScenario1();
+                break;
+            case 2:
+                setupScenario2();
+                break;
+            // Add more cases for additional scenarios
+            default:
+                System.out.println("✗ ERROR: Invalid scenario number!");
+        }
+    }
+
+    private void setupScenario2() {
+        // Define multiple grass locations across the space
+        int[][] grassLocations = {
+                { 10, 10 }, // Top-left area
+                { 30, 10 }, // Top-right area
+                { 10, 30 }, // Bottom-left area
+                { 30, 30 }, // Bottom-right area
+                { 20, 20 }, // Center
+                { 5, 15 }, // Left side
+                { 35, 25 }, // Right side
+                { 15, 5 }, // Top side
+                { 25, 35 } // Bottom side
+        };
+
+        System.out.println("✓ Scenario 3: Setting up multiple grass cells at different locations");
+
+        // Set each location to grass
+        for (int i = 0; i < grassLocations.length; i++) {
+            int x = grassLocations[i][0];
+            int y = grassLocations[i][1];
+
+            // Make sure coordinates are within bounds
+            if (x < xDimCellspace && y < yDimCellspace) {
+                SheepGrassCell grassCell = (SheepGrassCell) withId(x, y);
+                if (grassCell != null) {
+                    grassCell.setInitialState(SheepGrassCell.CellState.GRASS);
+                    System.out.println("  → Set cell (" + x + "," + y + ") to GRASS");
+                } else {
+                    System.out.println("✗ ERROR: Could not find cell at (" + x + "," + y + ")!");
+                }
+            } else {
+                System.out.println("✗ ERROR: Coordinates (" + x + "," + y + ") are out of bounds!");
+            }
+        }
+
+        System.out.println("✓ Total grass cells created: " + grassLocations.length);
     }
 
     public static void main(String args[]) {
