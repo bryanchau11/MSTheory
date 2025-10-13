@@ -1,17 +1,8 @@
 package Homework2025.PredatorPrey.BChau;
 
-import simView.*;
 import twoDCellSpace.*;
-import genDevs.modeling.*;
-import genDevs.simulation.*;
 import genDevs.simulation.realTime.*;
-import GenCol.*;
 import genDevs.plots.*;
-import java.util.*;
-import java.awt.*;
-
-import java.text.*;
-import java.io.*;
 
 public class SheepGrassCellSpace extends TwoDimCellSpace {
 
@@ -45,18 +36,11 @@ public class SheepGrassCellSpace extends TwoDimCellSpace {
                 addCell(cell, xDimCellspace, yDimCellspace);
             }
         }
-        // for (int i = 0; i < xDimCellspace; i++) {
-        // for (int j = 0; j < yDimCellspace; j++) {
-        // SheepGrassCell cell = (SheepGrassCell) withId(i, j);
-        // cell.initialize(); // Initialize after parent is set
-        // }
-        // }
         doScenario(scenarioNumber);
         DoNeighborCouplings();
         DoBoundaryToBoundaryCoupling();
     }
 
-    // ...existing code...
     private void doScenario(int scenarioNumber) {
         switch (scenarioNumber) {
             case 1:
@@ -77,9 +61,43 @@ public class SheepGrassCellSpace extends TwoDimCellSpace {
             case 6:
                 setupScenario6();
                 break;
+            case 7:
+                setupScenario7();
+                break;
             default:
                 System.out.println("✗ ERROR: Invalid scenario number!");
         }
+    }
+
+    private void setupScenario7() {
+        System.out.println("✓ Scenario 7: Lots of grass on the LEFT, 6 sheep on the RIGHT spaced ~5 apart");
+
+        // Dense left block of grass: about 1/4 of the width (min 3 columns)
+        int grassWidth = Math.max(3, xDimCellspace / 4);
+        for (int x = 0; x < grassWidth; x++) {
+            for (int y = 0; y < yDimCellspace; y++) {
+                SheepGrassCell c = (SheepGrassCell) withId(x, y);
+                if (c != null) {
+                    c.setInitialState(SheepGrassCell.CellState.GRASS);
+                }
+            }
+        }
+
+        // Place 6 sheep on the right side, spaced ~5 cells vertically
+        int sheepCount = 6;
+        int sheepX = Math.max(0, xDimCellspace - 2); // near right edge
+        int spacing = 5;
+        for (int i = 0, placed = 0; i < yDimCellspace && placed < sheepCount; i += spacing, placed++) {
+            int sy = i;
+            if (sy >= 0 && sy < yDimCellspace) {
+                SheepGrassCell s = (SheepGrassCell) withId(sheepX, sy);
+                if (s != null) {
+                    s.setInitialState(SheepGrassCell.CellState.SHEEP);
+                }
+            }
+        }
+
+        System.out.println("  → Placed grass block width=" + grassWidth + " and " + sheepCount + " sheep on the right");
     }
 
     private void setupScenario4() {
@@ -164,9 +182,6 @@ public class SheepGrassCellSpace extends TwoDimCellSpace {
                 { 15, 5 }, // Top side
                 { 25, 35 } // Bottom side
         };
-        // SheepGrassCell centerCell2 = (SheepGrassCell) withId(xDimCellspace / 2 + 1,
-        // 20);
-        // centerCell2.setInitialState(SheepGrassCell.CellState.SHEEP);
         System.out.println("✓ Scenario 3: Setting up multiple grass cells at different locations");
 
         // Set each location to grass
@@ -209,7 +224,6 @@ public class SheepGrassCellSpace extends TwoDimCellSpace {
         System.out.println("✓ Total sheep cells created: 1");
     }
 
-    // ...existing code...
     private void setupScenario6() {
         // Balanced start: multiple small grass patches with nearby sheep
         // Patterns chosen to create local resource-consumer dynamics that sustain
@@ -254,17 +268,14 @@ public class SheepGrassCellSpace extends TwoDimCellSpace {
             }
         }
     }
-    // ...existing code...
 
     public static void main(String args[]) {
-        int scenarioNumber = 6; // run balanced scenario 6 by default
+        int scenarioNumber = 7;
         SheepGrassCellSpace model = new SheepGrassCellSpace(scenarioNumber);
         TunableCoordinator r = new TunableCoordinator(model);
         r.setTimeScale(0.2);
-
         r.initialize();
         r.simulate(10000);
-        // System.exit(0);
     }
     // ...existing code...
 

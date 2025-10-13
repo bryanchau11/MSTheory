@@ -2,9 +2,6 @@
 package Homework2025.PredatorPrey.BChau;
 
 import genDevs.modeling.*;
-import twoDCellSpace.TwoDimCell;
-
-import java.io.*;
 import java.util.ArrayList;
 import java.util.Random;
 // import getNeighborXYCoord from SheepGrassCellSpace =>
@@ -25,10 +22,10 @@ public class GlobalRef {
     public static String[][] state; // state of all cells
     public static IODevs[][] cell_ref; // reference to all cells
 
-    public static final double grassReproduceT = 1.0; // change to the appropriate value for your model
+    public static final double grassReproduceT = 2.0; // change to the appropriate value for your model
     public static final double sheepMoveT = 1.5; // change to the appropriate value for your model
-    public static final double sheepLifeT = 6.0; // change to the appropriate value for your model
-    public static final double sheepReproduceT = 1.0; // change to the appropriate value for your model
+    public static final double sheepLifeT = 3.0; // change to the appropriate value for your model
+    public static final double sheepReproduceT = 2.0; // change to the appropriate value for your model
 
     private GlobalRef() {
 
