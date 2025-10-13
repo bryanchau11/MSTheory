@@ -104,111 +104,36 @@ public class SheepGrassCell extends TwoDimCell {
 
     private void scheduleNext() {
         if (currentState.equals(CellState.GRASS)) {
-            // Grass reproduction cycle
             holdIn("GROW", grassReproduceT);
-
         } else if (currentState.equals(CellState.SHEEP)) {
-            // Check if sheep should die FIRST (before any other action)
-            if (sheepLifeT <= 0) {
-                holdIn("DIE", 0); // Die immediately
-            } else {
-                // Schedule next action based on timers
-                double nextEventTime = Math.min(sheepMoveT, sheepReproduceT);
-                nextEventTime = Math.min(nextEventTime, sheepLifeT);
+            // Calculate time until next events for sheep
+            double timeUntilMove = sheepMoveT;
+            double timeUntilDeath = sheepLifeT; // Use global life time
+            double timeUntilReproduce = sheepReproduceT;
 
-                if (nextEventTime == sheepMoveT) {
-                    holdIn("MOVE", sheepMoveT);
-                } else if (nextEventTime == sheepReproduceT) {
-                    holdIn("REPRODUCE", sheepReproduceT);
+            System.out.println("DEBUG: Sheep at (" + getXcoord() + "," + getYcoord() +
+                    ") - moveIn: " + timeUntilMove + ", dieIn: " + timeUntilDeath + ", reproduceIn: "
+                    + timeUntilReproduce);
+
+            if (timeUntilDeath <= 0) {
+                System.out.println("Sheep at (" + getXcoord() + "," + getYcoord() + ") will DIE NOW");
+                holdIn("DIE", 0);
+            } else {
+                // Find the minimum time among all events
+                double minTime = Math.min(Math.min(timeUntilMove, timeUntilDeath), timeUntilReproduce);
+                // handle confluent events by priority: DIE > REPRODUCE > MOVE
+                if (minTime == timeUntilDeath) {
+                    holdIn("DIE", timeUntilDeath);
+                } else if (minTime == timeUntilReproduce) {
+                    holdIn("REPRODUCE", timeUntilReproduce);
                 } else {
-                    holdIn("CHECK_LIFE", sheepLifeT);
+                    holdIn("MOVE", timeUntilMove);
                 }
             }
         } else {
-            // Empty cells are passive
-            holdIn(CellState.EMPTY, INFINITY);
+            holdIn("EMPTY", INFINITY);
         }
     }
-
-    // public void deltint() {
-    // // Clear previous messages
-    // messageList = new message();
-
-    // if (phaseIs("GROW") && currentState.equals(CellState.GRASS)) {
-    // // Time to try reproducing grass
-    // grassReproduceT -= sigma;
-    // if (grassReproduceT <= 0) {
-    // grassReproduceT = GlobalRef.grassReproduceT; // Reset cycle
-    // System.out.println("Grass at (" + getXcoord() + "," + getYcoord() + ") trying
-    // to reproduce");
-    // tryToReproduceGrass();
-    // }
-    // } else if (phaseIs("MOVE") && currentState.equals(CellState.SHEEP)) {
-    // // Time for sheep to move
-    // sheepMoveT -= sigma;
-    // if (sheepMoveT <= 0) {
-    // sheepMoveT = GlobalRef.sheepMoveT; // Reset cycle
-    // System.out.println("Sheep at (" + getXcoord() + "," + getYcoord() + ") trying
-    // to move");
-    // tryToMoveSheep();
-    // }
-    // }
-    // // Schedule next event
-    // scheduleNext();
-    // }
-
-    // private void tryToMoveSheep() {
-    // // First try to find grass neighbors (preferred)
-    // Integer grassNeighborDirection = globalRef.getRandomNeighbor(getXcoord(),
-    // getYcoord(), CellState.GRASS);
-
-    // if (grassNeighborDirection != null) {
-    // // Found grass, move there and eat it
-    // String outputPort = getOutportForDirection(grassNeighborDirection);
-    // content con = makeContent(outputPort, new entity("move_sheep_eat"));
-    // messageList.add(con);
-
-    // System.out.println("Sheep at (" + getXcoord() + "," + getYcoord() +
-    // ") moving to eat grass in direction " + grassNeighborDirection);
-
-    // // This sheep will move out, so become empty
-    // currentState = CellState.EMPTY;
-    // GlobalRef.state[getXcoord()][getYcoord()] = currentState;
-
-    // // Update visualization
-    // if (cellGridView != null) {
-    // cellGridView.drawCellToScale(x_pos, y_pos, Color.WHITE);
-    // }
-
-    // } else {
-    // // No grass found, try to move to empty cell
-    // Integer emptyNeighborDirection = globalRef.getRandomNeighbor(getXcoord(),
-    // getYcoord(), CellState.EMPTY);
-
-    // if (emptyNeighborDirection != null) {
-    // // Found empty cell, move there
-    // String outputPort = getOutportForDirection(emptyNeighborDirection);
-    // content con = makeContent(outputPort, new entity("move_sheep"));
-    // messageList.add(con);
-
-    // System.out.println("Sheep at (" + getXcoord() + "," + getYcoord() +
-    // ") moving to empty cell in direction " + emptyNeighborDirection);
-
-    // // This sheep will move out, so become empty
-    // currentState = CellState.EMPTY;
-    // GlobalRef.state[getXcoord()][getYcoord()] = currentState;
-
-    // // Update visualization
-    // if (cellGridView != null) {
-    // cellGridView.drawCellToScale(x_pos, y_pos, Color.WHITE);
-    // }
-
-    // } else {
-    // System.out.println("Sheep at (" + getXcoord() + "," + getYcoord() +
-    // ") cannot move - no available neighbors");
-    // }
-    // }
-    // }
 
     private void tryToReproduceGrass() {
         Integer randomNeighborDirection = globalRef.getRandomNeighbor(getXcoord(), getYcoord(), CellState.EMPTY);
@@ -271,10 +196,12 @@ public class SheepGrassCell extends TwoDimCell {
 
                     scheduleNext();
 
-                } else if (messageContent.equals("move_sheep_eat") && currentState.equals(CellState.GRASS)) {
+                } else if (messageContent.startsWith("move_sheep_eat") && currentState.equals(CellState.GRASS)) {
                     // Sheep is moving here and eating the grass
                     currentState = CellState.SHEEP;
                     sheepMoveT = GlobalRef.sheepMoveT;
+                    sheepLifeT = GlobalRef.sheepLifeT; // Reset life timer when eating grass
+                    sheepReproduceT = GlobalRef.sheepReproduceT;
                     GlobalRef.state[getXcoord()][getYcoord()] = currentState;
 
                     // Update visualization for sheep
@@ -287,8 +214,15 @@ public class SheepGrassCell extends TwoDimCell {
 
                     scheduleNext();
 
-                } else if (messageContent.equals("move_sheep") && currentState.equals(CellState.EMPTY)) {
+                } else if (messageContent.startsWith("move_sheep:") && currentState.equals(CellState.EMPTY)) {
                     // Sheep is moving here to empty cell
+                    String[] parts = messageContent.split(":");
+                    double inheritedLifeT = Double.parseDouble(parts[1]);
+                    double inheritedReproduceT = (parts.length >= 3) ? Double.parseDouble(parts[2])
+                            : GlobalRef.sheepReproduceT;
+
+                    sheepLifeT = inheritedLifeT;
+                    sheepReproduceT = inheritedReproduceT;
                     currentState = CellState.SHEEP;
                     sheepMoveT = GlobalRef.sheepMoveT;
                     GlobalRef.state[getXcoord()][getYcoord()] = currentState;
@@ -298,7 +232,8 @@ public class SheepGrassCell extends TwoDimCell {
                         cellGridView.drawCellToScale(x_pos, y_pos, Color.RED);
                     }
 
-                    System.out.println("Sheep moved to (" + getXcoord() + "," + getYcoord() + ")");
+                    System.out.println("Sheep moved to (" + getXcoord() + "," + getYcoord() +
+                            ") with life: " + inheritedLifeT + ", reproduce: " + inheritedReproduceT);
 
                     scheduleNext();
                 } else if (messageContent.equals("reproduce_sheep") && currentState.equals(CellState.EMPTY)) {
@@ -354,23 +289,29 @@ public class SheepGrassCell extends TwoDimCell {
     }
 
     public message out() {
-        // build messageList here for the current phase so simulator sends it before
-        // deltint()
         messageList = new message(); // reset
         if (phaseIs("MOVE") && currentState.equals(CellState.SHEEP)) {
-            // choose move (do NOT change currentState here
             tryToMoveSheep();
 
             if (pendingMoveDirection != null && pendingMoveAction != null) {
+                // Calculate what the timers will be AFTER this move
+                double lifeAfterMove = sheepLifeT - sigma;
+                double reproduceAfterMove = sheepReproduceT - sigma;
+
+                // If eating grass, life will be reset
+                if (pendingMoveAction.equals("move_sheep_eat")) {
+                    lifeAfterMove = GlobalRef.sheepLifeT;
+                }
+
+                String messageWithTimers = pendingMoveAction + ":" + lifeAfterMove + ":" + reproduceAfterMove;
                 String outputPort = getOutportForDirection(pendingMoveDirection);
-                content con = makeContent(outputPort, new entity(pendingMoveAction));
+                content con = makeContent(outputPort, new entity(messageWithTimers));
                 messageList.add(con);
                 System.out.println("Cell (" + getXcoord() + "," + getYcoord() + ") outgoing move: " + pendingMoveAction
-                        + " dir=" + pendingMoveDirection);
+                        + " dir=" + pendingMoveDirection + " life=" + lifeAfterMove + " reproduce="
+                        + reproduceAfterMove);
             }
         } else if (phaseIs("GROW") && currentState.equals(CellState.GRASS)) {
-            // Grass reproduction messages are generated in deltint() when it's time
-            // to reproduce, so nothing to do here.
             tryToReproduceGrass();
         } else if (phaseIs("REPRODUCE") && currentState.equals(CellState.SHEEP)) {
             tryToReproduceSheep();
@@ -382,17 +323,18 @@ public class SheepGrassCell extends TwoDimCell {
     }
 
     public void deltint() {
-        messageList = new message();
-
         if (phaseIs("GROW") && currentState.equals(CellState.GRASS)) {
-            // Grass reproduction logic
-            tryToReproduceGrass();
-            grassReproduceT = GlobalRef.grassReproduceT; // Reset timer
+            // Reset grass reproduction timer (out() already emitted reproduction messages)
+            grassReproduceT = GlobalRef.grassReproduceT;
+            System.out.println("Grass at (" + getXcoord() + "," + getYcoord() + ") completed reproduction cycle");
 
         } else if (phaseIs("MOVE") && currentState.equals(CellState.SHEEP)) {
             // Decrement all sheep timers by the time that passed (sigma)
             sheepLifeT -= sigma;
             sheepReproduceT -= sigma;
+
+            System.out.println("Sheep at (" + getXcoord() + "," + getYcoord() + ") after move - life: " + sheepLifeT
+                    + ", reproduce: " + sheepReproduceT);
 
             // Handle movement
             if (pendingMoveAction != null && pendingMoveAction.equals("move_sheep_eat")) {
@@ -411,19 +353,18 @@ public class SheepGrassCell extends TwoDimCell {
                 System.out.println("Sheep departed from (" + getXcoord() + "," + getYcoord() + ")");
             }
 
-            // Reset pending move
+            // Reset pending move and move timer
             pendingMoveAction = null;
             pendingMoveDirection = null;
+            sheepMoveT = GlobalRef.sheepMoveT; // Reset move timer
 
         } else if (phaseIs("REPRODUCE") && currentState.equals(CellState.SHEEP)) {
-            // Sheep reproduction logic
+            // Sheep reproduction logic - decrease life timer but reset reproduction timer
+            sheepLifeT -= sigma;
             sheepReproduceT = GlobalRef.sheepReproduceT; // Reset reproduction timer
-            sheepLifeT -= sigma; // Decrement life timer during reproduction
-            tryToReproduceSheep();
 
-        } else if (phaseIs("CHECK_LIFE") && currentState.equals(CellState.SHEEP)) {
-            // Life timer expired - sheep dies
-            sheepLifeT = 0;
+            System.out.println("Sheep at (" + getXcoord() + "," + getYcoord() + ") reproduced, life: " + sheepLifeT);
+            // Note: tryToReproduceSheep() is called in out(), not here
 
         } else if (phaseIs("DIE") && currentState.equals(CellState.SHEEP)) {
             // Sheep dies
@@ -432,12 +373,73 @@ public class SheepGrassCell extends TwoDimCell {
             if (cellGridView != null) {
                 cellGridView.drawCellToScale(x_pos, y_pos, Color.WHITE);
             }
-            System.out.println("Sheep at (" + getXcoord() + "," + getYcoord() + ") died of starvation");
+            System.out.println("Sheep at (" + getXcoord() + "," + getYcoord() + ") died of old age");
         }
 
         // Schedule next event
         scheduleNext();
     }
+    // public void deltint() {
+    // messageList = new message();
+
+    // if (phaseIs("GROW") && currentState.equals(CellState.GRASS)) {
+    // // Grass reproduction logic
+    // tryToReproduceGrass();
+    // grassReproduceT = GlobalRef.grassReproduceT; // Reset timer
+
+    // } else if (phaseIs("MOVE") && currentState.equals(CellState.SHEEP)) {
+    // // Decrement all sheep timers by the time that passed (sigma)
+    // sheepLifeT -= sigma;
+    // sheepReproduceT -= sigma;
+
+    // // Handle movement
+    // if (pendingMoveAction != null && pendingMoveAction.equals("move_sheep_eat"))
+    // {
+    // // Reset life timer when eating grass
+    // sheepLifeT = GlobalRef.sheepLifeT;
+    // System.out.println("Sheep at (" + getXcoord() + "," + getYcoord() + ") reset
+    // life timer by eating");
+    // }
+
+    // if (pendingMoveAction != null && pendingMoveDirection != null) {
+    // // This sheep moves out, become empty
+    // currentState = CellState.EMPTY;
+    // GlobalRef.state[getXcoord()][getYcoord()] = currentState;
+    // if (cellGridView != null) {
+    // cellGridView.drawCellToScale(x_pos, y_pos, Color.WHITE);
+    // }
+    // System.out.println("Sheep departed from (" + getXcoord() + "," + getYcoord()
+    // + ")");
+    // }
+
+    // // Reset pending move
+    // pendingMoveAction = null;
+    // pendingMoveDirection = null;
+
+    // } else if (phaseIs("REPRODUCE") && currentState.equals(CellState.SHEEP)) {
+    // // Sheep reproduction logic
+    // sheepReproduceT = GlobalRef.sheepReproduceT; // Reset reproduction timer
+    // sheepLifeT -= sigma; // Decrement life timer during reproduction
+    // tryToReproduceSheep();
+
+    // } else if (phaseIs("CHECK_LIFE") && currentState.equals(CellState.SHEEP)) {
+    // // Life timer expired - sheep dies
+    // sheepLifeT = 0;
+
+    // } else if (phaseIs("DIE") && currentState.equals(CellState.SHEEP)) {
+    // // Sheep dies
+    // currentState = CellState.EMPTY;
+    // GlobalRef.state[getXcoord()][getYcoord()] = currentState;
+    // if (cellGridView != null) {
+    // cellGridView.drawCellToScale(x_pos, y_pos, Color.WHITE);
+    // }
+    // System.out.println("Sheep at (" + getXcoord() + "," + getYcoord() + ") died
+    // of starvation");
+    // }
+
+    // // Schedule next event
+    // scheduleNext();
+    // }
 
     private void tryToReproduceSheep() {
         Integer emptyNeighborDirection = globalRef.getRandomNeighbor(getXcoord(), getYcoord(), CellState.EMPTY);
