@@ -225,7 +225,7 @@ public class SheepGrassCell extends TwoDimCell {
                             ") with life: " + inheritedLifeT + ", reproduce: " + inheritedReproduceT);
 
                     scheduleNext();
-                } else if (messageContent.equals("reproduce_sheep") && currentState.equals(CellState.EMPTY)) {
+                } else if (messageContent.equals("reproduce_sheep") && !CellState.SHEEP.equals(currentState)) {
                     // New sheep is born here
                     currentState = CellState.SHEEP;
                     sheepMoveT = GlobalRef.sheepMoveT;
@@ -298,8 +298,18 @@ public class SheepGrassCell extends TwoDimCell {
             System.out.println("Sheep at (" + getXcoord() + "," + getYcoord() +
                     ") reproducing to direction " + emptyNeighborDirection);
         } else {
-            System.out.println("Sheep at (" + getXcoord() + "," + getYcoord() +
-                    ") cannot reproduce - no empty neighbors");
+            // If no empty neighbors, try to find a grass neighbor
+            Integer grassNeighborDirection = globalRef.getRandomNeighbor(getXcoord(), getYcoord(), CellState.GRASS);
+            if (grassNeighborDirection != null) {
+                String outputPort = getOutportForDirection(grassNeighborDirection);
+                content con = makeContent(outputPort, new entity("reproduce_sheep"));
+                messageList.add(con);
+                System.out.println("Sheep at (" + getXcoord() + "," + getYcoord() +
+                        ") reproducing to grass cell in direction " + grassNeighborDirection);
+            } else {
+                System.out.println("Sheep at (" + getXcoord() + "," + getYcoord() +
+                        ") cannot reproduce - all neighbors are sheep");
+            }
         }
     }
 
