@@ -103,7 +103,9 @@ public class SheepGrassCellSpace extends TwoDimCellSpace {
                 { 15, 5 }, // Top side
                 { 25, 35 } // Bottom side
         };
-
+        // SheepGrassCell centerCell2 = (SheepGrassCell) withId(xDimCellspace / 2 + 1,
+        // 20);
+        // centerCell2.setInitialState(SheepGrassCell.CellState.SHEEP);
         System.out.println("✓ Scenario 3: Setting up multiple grass cells at different locations");
 
         // Set each location to grass
