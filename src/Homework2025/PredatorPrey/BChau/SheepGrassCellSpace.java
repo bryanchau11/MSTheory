@@ -22,7 +22,7 @@ public class SheepGrassCellSpace extends TwoDimCellSpace {
         GlobalRef globalRef = GlobalRef.getInstance();
         globalRef.setDim(xDim, yDim);
 
-        plot = new newCellGridPlot("SheepGrassCellSpace", 0.1, "", 600, "", 600);
+        plot = new newCellGridPlot("SheepGrassCellSpace", 0.1, "", 400, "", 400);
         plot.setCellSize(10);
         plot.setCellGridViewLocation(570, 100);
 
@@ -31,7 +31,6 @@ public class SheepGrassCellSpace extends TwoDimCellSpace {
         // Create all cells
         for (int i = 0; i < xDimCellspace; i++) {
             for (int j = 0; j < yDimCellspace; j++) {
-                System.out.println("Creating cell at (" + i + "," + j + ")");
                 SheepGrassCell cell = new SheepGrassCell(i, j);
                 addCell(cell, xDimCellspace, yDimCellspace);
             }
@@ -65,12 +64,12 @@ public class SheepGrassCellSpace extends TwoDimCellSpace {
                 setupScenario7();
                 break;
             default:
-                System.out.println("✗ ERROR: Invalid scenario number!");
+                System.out.println("ERROR: Invalid scenario number!");
         }
     }
 
     private void setupScenario7() {
-        System.out.println("✓ Scenario 7: Lots of grass on the LEFT, 6 sheep on the RIGHT spaced ~5 apart");
+        System.out.println("Scenario 7: Lots of grass on the LEFT, 6 sheep on the RIGHT spaced ~5 apart");
 
         // Dense left block of grass: about 1/4 of the width (min 3 columns)
         int grassWidth = Math.max(3, xDimCellspace / 4);
@@ -96,8 +95,6 @@ public class SheepGrassCellSpace extends TwoDimCellSpace {
                 }
             }
         }
-
-        System.out.println("  → Placed grass block width=" + grassWidth + " and " + sheepCount + " sheep on the right");
     }
 
     private void setupScenario4() {
@@ -105,7 +102,7 @@ public class SheepGrassCellSpace extends TwoDimCellSpace {
         int[][] sheepLocations = {
                 { 5, 5 }, { 10, 8 }, { 30, 10 }, { 8, 30 }, { 25, 25 }, { 35, 5 }, { 5, 35 }
         };
-        System.out.println("✓ Scenario 4: Multiple sheep at different locations (no grass)");
+        System.out.println("Scenario 4: Multiple sheep at different locations (no grass)");
         for (int i = 0; i < sheepLocations.length; i++) {
             int x = sheepLocations[i][0];
             int y = sheepLocations[i][1];
@@ -113,7 +110,7 @@ public class SheepGrassCellSpace extends TwoDimCellSpace {
                 SheepGrassCell c = (SheepGrassCell) withId(x, y);
                 if (c != null) {
                     c.setInitialState(SheepGrassCell.CellState.SHEEP);
-                    System.out.println("  → Set cell (" + x + "," + y + ") to SHEEP");
+                    System.out.println(" Set cell (" + x + "," + y + ") to SHEEP");
                 }
             }
         }
@@ -124,7 +121,7 @@ public class SheepGrassCellSpace extends TwoDimCellSpace {
         // cell.
         int centerX = xDimCellspace / 2;
         int centerY = yDimCellspace / 2;
-        System.out.println("✓ Scenario 5: Two adjacent grass cells at center and one nearby sheep");
+        System.out.println("Scenario 5: Two adjacent grass cells at center and one nearby sheep");
 
         // Two neighboring grass cells (center and east)
         int gx1 = centerX;
@@ -134,11 +131,11 @@ public class SheepGrassCellSpace extends TwoDimCellSpace {
         SheepGrassCell g2 = (SheepGrassCell) withId(gx2, gy1);
         if (g1 != null) {
             g1.setInitialState(SheepGrassCell.CellState.GRASS);
-            System.out.println("  → Set cell (" + gx1 + "," + gy1 + ") to GRASS");
+            System.out.println(" Set cell (" + gx1 + "," + gy1 + ") to GRASS");
         }
         if (g2 != null) {
             g2.setInitialState(SheepGrassCell.CellState.GRASS);
-            System.out.println("  → Set cell (" + gx2 + "," + gy1 + ") to GRASS");
+            System.out.println(" Set cell (" + gx2 + "," + gy1 + ") to GRASS");
         }
 
         // Place one sheep adjacent to g1 (south of g1 if possible)
@@ -147,7 +144,7 @@ public class SheepGrassCellSpace extends TwoDimCellSpace {
         SheepGrassCell s = (SheepGrassCell) withId(sx, sy);
         if (s != null) {
             s.setInitialState(SheepGrassCell.CellState.SHEEP);
-            System.out.println("  → Set cell (" + sx + "," + sy + ") to SHEEP (adjacent to grass)");
+            System.out.println(" Set cell (" + sx + "," + sy + ") to SHEEP (adjacent to grass)");
         }
     }
 
@@ -155,18 +152,18 @@ public class SheepGrassCellSpace extends TwoDimCellSpace {
         int centerX = xDimCellspace / 2; // 20 for 40x40 grid
         int centerY = yDimCellspace / 2; // 20 for 40x40 grid
 
-        System.out.println("✓ Scenario 1: Setting up single grass cell at center location");
+        System.out.println("Scenario 1: Setting up single grass cell at center location");
 
         // Get the center cell and set it to grass
         SheepGrassCell centerCell = (SheepGrassCell) withId(centerX, centerY);
         if (centerCell != null) {
             centerCell.setInitialState(SheepGrassCell.CellState.GRASS);
-            System.out.println("  → Set cell (" + centerX + "," + centerY + ") to GRASS");
+            System.out.println(" Set cell (" + centerX + "," + centerY + ") to GRASS");
         } else {
-            System.out.println("✗ ERROR: Could not find center cell at (" + centerX + "," + centerY + ")!");
+            System.out.println("ERROR: Could not find center cell at (" + centerX + "," + centerY + ")!");
         }
 
-        System.out.println("✓ Total grass cells created: 1");
+        System.out.println("Total grass cells created: 1");
     }
 
     private void setupScenario2() {
@@ -182,7 +179,7 @@ public class SheepGrassCellSpace extends TwoDimCellSpace {
                 { 15, 5 }, // Top side
                 { 25, 35 } // Bottom side
         };
-        System.out.println("✓ Scenario 3: Setting up multiple grass cells at different locations");
+        System.out.println("Scenario 3: Setting up multiple grass cells at different locations");
 
         // Set each location to grass
         for (int i = 0; i < grassLocations.length; i++) {
@@ -194,34 +191,34 @@ public class SheepGrassCellSpace extends TwoDimCellSpace {
                 SheepGrassCell grassCell = (SheepGrassCell) withId(x, y);
                 if (grassCell != null) {
                     grassCell.setInitialState(SheepGrassCell.CellState.GRASS);
-                    System.out.println("  → Set cell (" + x + "," + y + ") to GRASS");
+                    System.out.println(" Set cell (" + x + "," + y + ") to GRASS");
                 } else {
-                    System.out.println("✗ ERROR: Could not find cell at (" + x + "," + y + ")!");
+                    System.out.println("ERROR: Could not find cell at (" + x + "," + y + ")!");
                 }
             } else {
-                System.out.println("✗ ERROR: Coordinates (" + x + "," + y + ") are out of bounds!");
+                System.out.println("ERROR: Coordinates (" + x + "," + y + ") are out of bounds!");
             }
         }
 
-        System.out.println("✓ Total grass cells created: " + grassLocations.length);
+        System.out.println("Total grass cells created: " + grassLocations.length);
     }
 
     private void setupScenario3() {
         int centerX = xDimCellspace / 2;
         int centerY = yDimCellspace / 2;
 
-        System.out.println("✓ Scenario 3: Setting up single sheep at center location (no grass)");
+        System.out.println("Scenario 3: Setting up single sheep at center location (no grass)");
 
         // Get the center cell and set it to sheep
         SheepGrassCell centerCell = (SheepGrassCell) withId(centerX, centerY);
         if (centerCell != null) {
             centerCell.setInitialState(SheepGrassCell.CellState.SHEEP);
-            System.out.println("  → Set cell (" + centerX + "," + centerY + ") to SHEEP");
+            System.out.println(" Set cell (" + centerX + "," + centerY + ") to SHEEP");
         } else {
-            System.out.println("✗ ERROR: Could not find center cell at (" + centerX + "," + centerY + ")!");
+            System.out.println("ERROR: Could not find center cell at (" + centerX + "," + centerY + ")!");
         }
 
-        System.out.println("✓ Total sheep cells created: 1");
+        System.out.println("Total sheep cells created: 1");
     }
 
     private void setupScenario6() {
@@ -242,7 +239,7 @@ public class SheepGrassCellSpace extends TwoDimCellSpace {
                 { 30, 29 }, { 29, 31 }, { 31, 29 }
         };
 
-        System.out.println("✓ Scenario 6: Multiple grass and sheep - balanced start");
+        System.out.println("Scenario 6: Multiple grass and sheep - balanced start");
 
         for (int i = 0; i < grassLocations.length; i++) {
             int x = grassLocations[i][0];
@@ -251,7 +248,7 @@ public class SheepGrassCellSpace extends TwoDimCellSpace {
                 SheepGrassCell c = (SheepGrassCell) withId(x, y);
                 if (c != null) {
                     c.setInitialState(SheepGrassCell.CellState.GRASS);
-                    System.out.println("  → Set cell (" + x + "," + y + ") to GRASS");
+                    System.out.println(" Set cell (" + x + "," + y + ") to GRASS");
                 }
             }
         }
@@ -263,14 +260,15 @@ public class SheepGrassCellSpace extends TwoDimCellSpace {
                 SheepGrassCell c = (SheepGrassCell) withId(x, y);
                 if (c != null) {
                     c.setInitialState(SheepGrassCell.CellState.SHEEP);
-                    System.out.println("  → Set cell (" + x + "," + y + ") to SHEEP");
+                    System.out.println(" Set cell (" + x + "," + y + ") to SHEEP");
                 }
             }
         }
     }
 
     public static void main(String args[]) {
-        int scenarioNumber = 6;
+        // Please chaneg this number for different scenarios
+        int scenarioNumber = 7;
         SheepGrassCellSpace model = new SheepGrassCellSpace(scenarioNumber);
         TunableCoordinator r = new TunableCoordinator(model);
         r.setTimeScale(0.2);
