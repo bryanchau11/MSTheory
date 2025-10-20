@@ -401,10 +401,10 @@ public class SheepGrassCell extends TwoDimCell {
                         + " dir=" + pendingMoveDirection + " life=" + lifeAfterMove + " reproduce="
                         + reproduceAfterMove);
             }
-        } else if (phaseIs("REPRODUCE") && currentState.equals(CellState.SHEEP)) {
-            attemptReproduceSheep();
         } else if (phaseIs("GROW") && currentState.equals(CellState.GRASS)) {
             attemptReproduceGrass();
+        } else if (phaseIs("REPRODUCE") && currentState.equals(CellState.SHEEP)) {
+            attemptReproduceSheep();
         }
         System.out.println(
                 "Cell (" + getXcoord() + "," + getYcoord() + ") outputting messages,  messageList: " + messageList);
