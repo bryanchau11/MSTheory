@@ -22,10 +22,10 @@ public class GlobalRef {
     public static String[][] state; // state of all cells
     public static IODevs[][] cell_ref; // reference to all cells
 
-    public static final double grassReproduceT = 1.2; // change to the appropriate value for your model
+    public static final double grassReproduceT = 1.0; // change to the appropriate value for your model
     public static final double sheepMoveT = 1.5; // change to the appropriate value for your model
     public static final double sheepLifeT = 3.0; // change to the appropriate value for your model
-    public static final double sheepReproduceT = 4.0; // change to the appropriate value for your model
+    public static final double sheepReproduceT = 3.0; // change to the appropriate value for your model
 
     private GlobalRef() {
 

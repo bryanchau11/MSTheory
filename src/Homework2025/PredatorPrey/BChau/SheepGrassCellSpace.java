@@ -12,10 +12,6 @@ public class SheepGrassCellSpace extends TwoDimCellSpace {
         this(40, 40, scenarioNumber);
     }
 
-    public SheepGrassCellSpace() {
-        this(60, 60, 1); // Default to scenario 1
-    }
-
     public SheepGrassCellSpace(int xDim, int yDim, int scenarioNumber) {
         super("SheepGrass Cell Space", xDim, yDim);
         // Initialize GlobalRef FIRST
@@ -65,86 +61,6 @@ public class SheepGrassCellSpace extends TwoDimCellSpace {
                 break;
             default:
                 System.out.println("ERROR: Invalid scenario number!");
-        }
-    }
-
-    private void setupScenario7() {
-        System.out.println("Scenario 7: Lots of grass on the LEFT, 6 sheep on the RIGHT spaced ~5 apart");
-
-        // Dense left block of grass: about 1/4 of the width (min 3 columns)
-        int grassWidth = Math.max(3, xDimCellspace / 4);
-        for (int x = 0; x < grassWidth; x++) {
-            for (int y = 0; y < yDimCellspace; y++) {
-                SheepGrassCell c = (SheepGrassCell) withId(x, y);
-                if (c != null) {
-                    c.setInitialState(SheepGrassCell.CellState.GRASS);
-                }
-            }
-        }
-
-        // Place 6 sheep on the right side, spaced ~5 cells vertically
-        int sheepCount = 6;
-        int sheepX = Math.max(0, xDimCellspace - 2); // near right edge
-        int spacing = 5;
-        for (int i = 0, placed = 0; i < yDimCellspace && placed < sheepCount; i += spacing, placed++) {
-            int sy = i;
-            if (sy >= 0 && sy < yDimCellspace) {
-                SheepGrassCell s = (SheepGrassCell) withId(sheepX, sy);
-                if (s != null) {
-                    s.setInitialState(SheepGrassCell.CellState.SHEEP);
-                }
-            }
-        }
-    }
-
-    private void setupScenario4() {
-        // Multiple sheep at different locations. No grass.
-        int[][] sheepLocations = {
-                { 5, 5 }, { 10, 8 }, { 30, 10 }, { 8, 30 }, { 25, 25 }, { 35, 5 }, { 5, 35 }
-        };
-        System.out.println("Scenario 4: Multiple sheep at different locations (no grass)");
-        for (int i = 0; i < sheepLocations.length; i++) {
-            int x = sheepLocations[i][0];
-            int y = sheepLocations[i][1];
-            if (x < xDimCellspace && y < yDimCellspace) {
-                SheepGrassCell c = (SheepGrassCell) withId(x, y);
-                if (c != null) {
-                    c.setInitialState(SheepGrassCell.CellState.SHEEP);
-                    System.out.println(" Set cell (" + x + "," + y + ") to SHEEP");
-                }
-            }
-        }
-    }
-
-    private void setupScenario5() {
-        // Two neighboring grass cells in the center and one sheep adjacent to one grass
-        // cell.
-        int centerX = xDimCellspace / 2;
-        int centerY = yDimCellspace / 2;
-        System.out.println("Scenario 5: Two adjacent grass cells at center and one nearby sheep");
-
-        // Two neighboring grass cells (center and east)
-        int gx1 = centerX;
-        int gy1 = centerY;
-        int gx2 = centerX + 1 < xDimCellspace ? centerX + 1 : centerX - 1;
-        SheepGrassCell g1 = (SheepGrassCell) withId(gx1, gy1);
-        SheepGrassCell g2 = (SheepGrassCell) withId(gx2, gy1);
-        if (g1 != null) {
-            g1.setInitialState(SheepGrassCell.CellState.GRASS);
-            System.out.println(" Set cell (" + gx1 + "," + gy1 + ") to GRASS");
-        }
-        if (g2 != null) {
-            g2.setInitialState(SheepGrassCell.CellState.GRASS);
-            System.out.println(" Set cell (" + gx2 + "," + gy1 + ") to GRASS");
-        }
-
-        // Place one sheep adjacent to g1 (south of g1 if possible)
-        int sx = gx1;
-        int sy = (gy1 - 1 >= 0) ? gy1 - 1 : gy1 + 1;
-        SheepGrassCell s = (SheepGrassCell) withId(sx, sy);
-        if (s != null) {
-            s.setInitialState(SheepGrassCell.CellState.SHEEP);
-            System.out.println(" Set cell (" + sx + "," + sy + ") to SHEEP (adjacent to grass)");
         }
     }
 
@@ -221,6 +137,57 @@ public class SheepGrassCellSpace extends TwoDimCellSpace {
         System.out.println("Total sheep cells created: 1");
     }
 
+    private void setupScenario4() {
+        // Multiple sheep at different locations. No grass.
+        int[][] sheepLocations = {
+                { 5, 5 }, { 10, 8 }, { 30, 10 }, { 8, 30 }, { 25, 25 }, { 35, 5 }, { 5, 35 }
+        };
+        System.out.println("Scenario 4: Multiple sheep at different locations (no grass)");
+        for (int i = 0; i < sheepLocations.length; i++) {
+            int x = sheepLocations[i][0];
+            int y = sheepLocations[i][1];
+            if (x < xDimCellspace && y < yDimCellspace) {
+                SheepGrassCell c = (SheepGrassCell) withId(x, y);
+                if (c != null) {
+                    c.setInitialState(SheepGrassCell.CellState.SHEEP);
+                    System.out.println(" Set cell (" + x + "," + y + ") to SHEEP");
+                }
+            }
+        }
+    }
+
+    private void setupScenario5() {
+        // Two neighboring grass cells in the center and one sheep adjacent to one grass
+        // cell.
+        int centerX = xDimCellspace / 2;
+        int centerY = yDimCellspace / 2;
+        System.out.println("Scenario 5: Two adjacent grass cells at center and one nearby sheep");
+
+        // Two neighboring grass cells (center and east)
+        int gx1 = centerX;
+        int gy1 = centerY;
+        int gx2 = centerX + 1 < xDimCellspace ? centerX + 1 : centerX - 1;
+        SheepGrassCell g1 = (SheepGrassCell) withId(gx1, gy1);
+        SheepGrassCell g2 = (SheepGrassCell) withId(gx2, gy1);
+        if (g1 != null) {
+            g1.setInitialState(SheepGrassCell.CellState.GRASS);
+            System.out.println(" Set cell (" + gx1 + "," + gy1 + ") to GRASS");
+        }
+        if (g2 != null) {
+            g2.setInitialState(SheepGrassCell.CellState.GRASS);
+            System.out.println(" Set cell (" + gx2 + "," + gy1 + ") to GRASS");
+        }
+
+        // Place one sheep adjacent to g1 (south of g1 if possible)
+        int sx = gx1;
+        int sy = (gy1 - 1 >= 0) ? gy1 - 1 : gy1 + 1;
+        SheepGrassCell s = (SheepGrassCell) withId(sx, sy);
+        if (s != null) {
+            s.setInitialState(SheepGrassCell.CellState.SHEEP);
+            System.out.println(" Set cell (" + sx + "," + sy + ") to SHEEP (adjacent to grass)");
+        }
+    }
+
     private void setupScenario6() {
         // Balanced start: multiple small grass patches with nearby sheep
         // Patterns chosen to create local resource-consumer dynamics that sustain
@@ -266,9 +233,38 @@ public class SheepGrassCellSpace extends TwoDimCellSpace {
         }
     }
 
+    private void setupScenario7() {
+        System.out.println("Scenario 7: Lots of grass on the LEFT, 6 sheep on the RIGHT spaced ~5 apart");
+
+        // Dense left block of grass: about 1/4 of the width (min 3 columns)
+        int grassWidth = Math.max(3, xDimCellspace / 4);
+        for (int x = 0; x < grassWidth; x++) {
+            for (int y = 0; y < yDimCellspace; y++) {
+                SheepGrassCell c = (SheepGrassCell) withId(x, y);
+                if (c != null) {
+                    c.setInitialState(SheepGrassCell.CellState.GRASS);
+                }
+            }
+        }
+
+        // Place 6 sheep on the right side, spaced ~5 cells vertically
+        int sheepCount = 6;
+        int sheepX = Math.max(0, xDimCellspace - 2); // near right edge
+        int spacing = 5;
+        for (int i = 0, placed = 0; i < yDimCellspace && placed < sheepCount; i += spacing, placed++) {
+            int sy = i;
+            if (sy >= 0 && sy < yDimCellspace) {
+                SheepGrassCell s = (SheepGrassCell) withId(sheepX, sy);
+                if (s != null) {
+                    s.setInitialState(SheepGrassCell.CellState.SHEEP);
+                }
+            }
+        }
+    }
+
     public static void main(String args[]) {
         // Please chaneg this number for different scenarios
-        int scenarioNumber = 7;
+        int scenarioNumber = 6;
         SheepGrassCellSpace model = new SheepGrassCellSpace(scenarioNumber);
         TunableCoordinator r = new TunableCoordinator(model);
         r.setTimeScale(0.2);
