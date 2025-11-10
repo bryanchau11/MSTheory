@@ -64,9 +64,30 @@ public class PF_skeleton {
 
 		// read observation data and store it in the sensorDataArray
 		// ++++++++++++++++++++ Add your code below +++++++++++++++++++++++++
-
+		readRealSensorData();
 		// run the PF algorithm
 		// ++++++++++++++++++++ Add your code below +++++++++++++++++++++++++
+		for (int step = 0; step < configData.numberofsteps; step++) {
+			System.out.println("Processing step: " + step);
+
+			// Sampling and compute weights for all particles
+			samplingAndComputeWeights(step);
+			// Copy new particle states to current particle states for next iteration
+			for (int i = 0; i < configData.numberofparticles; i++) {
+				particleStateArray[i] = newParticleStateArray[i];
+			}
+			// Normalize weights
+			normalizeWeights(configData.numberofparticles);
+
+			// Resampling based on weights
+			resampling(configData.numberofparticles, selectedParticles);
+
+			// Analyze and save results
+			analyzeAndSaveResults(0, step);
+		}
+
+		DA_result.close();
+		System.out.println("!!!!!!!!!!!!!finishing all steps of PF algorithm");
 
 	}
 
@@ -86,7 +107,14 @@ public class PF_skeleton {
 
 				// generate an initial random state
 				// ++++++++++++++++++++ Add your code below +++++++++++++++++++++++++
-
+				workingState = (globalRand.nextDouble() < 0.5) ? "working" : "break";
+				phaseSigma = getTruncatedNormalDistribution(0, configData.stepInterval * 2,
+						configData.stepInterval,
+						configData.stepInterval * 0.3);
+				elaspedTimeInPhase = getTruncatedNormalDistribution(0, phaseSigma,
+						phaseSigma * 0.5,
+						phaseSigma * 0.2);
+				carQueueSize = (int) getTruncatedNormalDistribution(0, 20, 5, 3);
 			} else {
 				// initialize the state based on the resampled particles from the previous step
 				workingState = particleStateArray[selectedParticles[idx]].workingState;
@@ -97,13 +125,30 @@ public class PF_skeleton {
 				// Add noise to the state --- we need this Particle Rejuvenation step because
 				// DEVS model is a deterministic model
 				// ++++++++++++++++++++ Add your code below +++++++++++++++++++++++++
+				double noise_sigma = configData.stepInterval * 0.1;
 
+				// Add Gaussian noise to phaseSigma
+				// x_new = x + ε where ε ~ TN(0, σ²; low-x, high-x)
+				// phaseSigma_new = phaseSigma_current + ε where ε ~ TN(0, noise_sigma²;
+				// -phaseSigma_current, 60-phaseSigma_current)
+				phaseSigma = getTruncatedNormalDistribution(0, configData.stepInterval * 2,
+						phaseSigma,
+						noise_sigma);
+
+				// Add Gaussian noise to elapsed time
+				elaspedTimeInPhase = getTruncatedNormalDistribution(0, phaseSigma,
+						elaspedTimeInPhase,
+						noise_sigma);
+
+				// Add integer noise to car queue size
+				int queueNoise = (int) Math.round(globalRand.nextGaussian() * 1.0);
+				carQueueSize = Math.max(0, carQueueSize + queueNoise);
 			}
 
 			// create the simulation model and assign it to simModel
 			// ++++++++++++++++++++ Add your code below +++++++++++++++++++++++++
-
-			// store the model in the particleArray
+			simModel = new carWashSys_DA("particle_" + idx, carQueueSize, workingState, phaseSigma, elaspedTimeInPhase,
+					globalRand); // store the model in the particleArray
 			particleArray[idx] = simModel;
 			//
 			// --------------- run simulation -----------------------------
@@ -194,6 +239,17 @@ public class PF_skeleton {
 		// compute the weight
 		double weight = 0;
 		// ++++++++++++++++++++ Add your code below +++++++++++++++++++++++++
+		int observedFinishedCars = sensorDataArray[step].finishedCarCount;
+
+		// Compute difference between simulated and observed
+		double difference = numFinishedCars - observedFinishedCars;
+
+		// Compute weight using Gaussian likelihood function
+		// Assuming observation noise with standard deviation sigma_obs
+		double sigma_obs = 2.0; // observation noise standard deviation
+
+		// Likelihood: exp(-0.5 * (difference/sigma)^2)
+		weight = Math.exp(-difference * difference / (2 * sigma_obs * sigma_obs));
 
 		return weight;
 	}
